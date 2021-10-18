@@ -1,0 +1,13 @@
+
+	Русский               ||        Английский
+	-------------------------------------------------------------------
+	Название	          ||        Name 
+	ИНН			          ||        TIN (Taxpayer Identification Number)
+	Юридический адрес	  ||	    Legal Address 
+	Финансовый результат  ||		Financial Results
+	Год					  ||		Year
+	Квартал				  ||		Quarter
+	Доход				  ||		Income
+	Расход				  ||		Consumption
+	Прибыль				  ||		Profit
+	Рентабельность		  ||		Rentability
