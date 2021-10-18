@@ -1,4 +1,7 @@
 ﻿using System;
+/*
+ * Первая версия проекта 
+ */
 
 namespace ConsoleFIA
 {
