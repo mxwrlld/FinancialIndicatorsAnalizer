@@ -4,10 +4,12 @@
 	Название	          ||        Name 
 	ИНН			          ||        TIN (Taxpayer Identification Number)
 	Юридический адрес	  ||	    Legal Address 
-	Финансовый результат  ||		Financial Results
+	Финансовый результат  ||		Financial Result
 	Год					  ||		Year
 	Квартал				  ||		Quarter
 	Доход				  ||		Income
 	Расход				  ||		Consumption
 	Прибыль				  ||		Profit
 	Рентабельность		  ||		Rentability
+	Реестр предприятий	  ||		Registry of Enterprises
+						  ||		
