@@ -4,14 +4,14 @@ namespace FIAModel
 {
     public class FinancialResult
     {
-        public string Year { get; }
+        public int Year { get; }
         public int Quarter { get; }
         public decimal Income { get;}
         public decimal Consumption { get;}
         public decimal Profit => (Income - Consumption);
-        public double Rentability => (double)Math.Round((Profit / Consumption), 2);
+        public double Rentability => (double)(Profit / Consumption);
 
-        public FinancialResult(string year, int quarter, decimal income, decimal consumption)
+        public FinancialResult(int year, int quarter, decimal income, decimal consumption)
         {
             Year = year;
             Quarter = quarter;
