@@ -10,7 +10,8 @@ namespace FIAModel
         public string TIN { get; }
         public string LegalAddress { get; }
 
-        public List<FinancialResult> FinancialResults { get; } = new List<FinancialResult>();
+        public Dictionary<Tuple<int, int>, FinancialResult> FinancialResults { get; private set; }
+            = new Dictionary<Tuple<int, int>, FinancialResult>();
 
         public Enterprise(string name, string tin, string legalAddress)
         {
@@ -21,26 +22,19 @@ namespace FIAModel
 
         public void AddFinancialResult(FinancialResult financialResult)
         {
-            /* Исправить: 
-             * возможно добавление ФинРез. с одинаковыми
-             * полями года и квартала. 
-             */
-            FinancialResults.Add(financialResult);
+            FinancialResults.Add(new Tuple<int, int>(financialResult.Year, financialResult.Quarter) , financialResult);
         }
 
         public bool RemoveFinancialResult(FinancialResult financialResult)
         {
-            return FinancialResults.Remove(financialResult);
+            var key = new Tuple<int, int>(financialResult.Year, financialResult.Quarter);
+            return FinancialResults.Remove(key);
         }
 
-        public bool RemoveFinancialResult(string year, int quarter)
+        public bool RemoveFinancialResult(int year, int quarter)
         {
-            var foundFinRes = FinancialResults.Find(fr => fr.Year == year && fr.Quarter == quarter);
-            if(foundFinRes != null)
-            {
-                return FinancialResults.Remove(foundFinRes);
-            }
-            return false;
+            var key = new Tuple<int, int>(year, quarter);
+            return FinancialResults.Remove(key);
         }
 
         public override string ToString()
