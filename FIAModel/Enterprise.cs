@@ -37,6 +37,21 @@ namespace FIAModel
             return FinancialResults.Remove(key);
         }
 
+        // Для верного удаления объектов в регистре
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+            if (obj is Enterprise)
+            {
+                var enterprise = obj as Enterprise;
+                if (Name == enterprise.Name
+                    && TIN == enterprise.TIN)
+                    return true;
+            }
+            return false;
+        }
+
         public override string ToString()
         {
             return String.Format("\nПредприятие" +
