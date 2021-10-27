@@ -10,7 +10,7 @@ namespace FIAModel
         public string TIN { get; }
         public string LegalAddress { get; }
 
-        public Dictionary<Tuple<int, int>, FinancialResult> FinancialResults { get; private set; }
+        public Dictionary<Tuple<int, int>, FinancialResult> FinancialResults { get; set; }
             = new Dictionary<Tuple<int, int>, FinancialResult>();
 
         public Enterprise(string name, string tin, string legalAddress)

@@ -8,54 +8,41 @@ namespace ConsoleFIA.Mocks
     class MocksFabric
     {
 
-        public static List<FinancialResult> MockFinancialResults1 => new List<FinancialResult>()
+        public static Dictionary<Tuple<int, int>, FinancialResult> MockFinancialResults1 => new Dictionary<Tuple<int, int>, FinancialResult>()
         {
-            new FinancialResult("2000", 1, 2300, 400),
-            new FinancialResult("2000", 2, 2300, 2400),
-            new FinancialResult("2000", 3, 300, 4000)
-            //new FinancialResult("2000", 4, 100, 40000)
-        };
-        
-        public static List<FinancialResult> MockFinancialResults2 => new List<FinancialResult>()
-        {
-            new FinancialResult("2020", 3, 10, 10),
-            new FinancialResult("2020", 4, 30000, 4000)
+            [new Tuple<int, int>(2000, 1)] = new FinancialResult(2000, 1, 2300, 400),
+            [new Tuple<int, int>(2000, 2)] = new FinancialResult(2000, 2, 2300, 2400),
+            [new Tuple<int, int>(2000, 3)] = new FinancialResult(2000, 3, 300, 4000),
+            //[new Tuple<int, int>(2000, 4)] = new FinancialResult(2000, 4, 100, 40000),
         };
 
-        public static List<FinancialResult> MockFinancialResults3 => new List<FinancialResult>()
+        public static Dictionary<Tuple<int, int>, FinancialResult> MockFinancialResults2 => new Dictionary<Tuple<int, int>, FinancialResult>()
         {
-            new FinancialResult("2010", 1, 100000000, 50000),
-            new FinancialResult("2010", 2, 220000000000, 300004000)
+            [new Tuple<int, int>(2020, 3)] = new FinancialResult(2020, 3, 10, 10),
+            [new Tuple<int, int>(2020, 4)] = new FinancialResult(2020, 4, 30000, 4000)
         };
 
-        public static Dictionary<string, Enterprise> GetMockEnterprisesReports()
+        public static Dictionary<Tuple<int, int>, FinancialResult> MockFinancialResults3 => new Dictionary<Tuple<int, int>, FinancialResult>()
         {
-            Dictionary<string, Enterprise> MockEnterprises = new Dictionary<string, Enterprise>
+            [new Tuple<int, int>(2010, 1)] = new FinancialResult(2010, 1, 100000000, 50000),
+            [new Tuple<int, int>(2010, 2)] = new FinancialResult(2010, 2, 220000000000, 300004000)
+        };
+
+
+        public static List<Enterprise> GetMockEnterprisesReports()
+        {
+            List<Enterprise> MockEnterprises = new List<Enterprise>()
             {
-                ["123"] = new Enterprise("ООО Сок", "123", "Московское шоссе"),
-                ["456"] = new Enterprise("OOO Совсем Добрый", "456", "ул. Лукачева"),
-                ["789"] = new Enterprise("ООО Безусловный", "789", "шоссе Яблочное")
+                new Enterprise("ООО Сок", "123", "Московское шоссе"),
+                new Enterprise("OOO Совсем Добрый", "456", "ул. Лукачева"),
+                new Enterprise("ООО Безусловный", "789", "шоссе Яблочное")
             };
 
-
-            for (int i = 0; i < MockFinancialResults1.Count; i++)
-            {
-                MockEnterprises["123"].AddFinancialResult(MockFinancialResults1[i]);
-            }
-
-            for (int i = 0; i < MockFinancialResults2.Count; i++)
-            {
-                MockEnterprises["456"].AddFinancialResult(MockFinancialResults2[i]);
-            }
-
-            for (int i = 0; i < MockFinancialResults3.Count; i++)
-            {
-                MockEnterprises["789"].AddFinancialResult(MockFinancialResults3[i]);
-            }
-
+            MockEnterprises[0].FinancialResults = MockFinancialResults1;
+            MockEnterprises[1].FinancialResults = MockFinancialResults2;
+            MockEnterprises[2].FinancialResults = MockFinancialResults3;
+            
             return MockEnterprises;
-
-
         }
     }
 }
