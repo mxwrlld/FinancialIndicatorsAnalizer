@@ -62,7 +62,7 @@ namespace ConsoleFIA.Controllers
                 Console.WriteLine();
                 Console.WriteLine("Заполнение финансовой отчётности");
 
-                string year = InputValidator.ReadYear();
+                int year = InputValidator.ReadYear();
                 int quarter = InputValidator.ReadQuarter(year);
                 decimal income = InputValidator.ReadIncome();
                 decimal consumption = InputValidator.ReadConsumption();
@@ -108,9 +108,7 @@ namespace ConsoleFIA.Controllers
         {
             var maxWidthOfColumns = new int[3];
 
-            var values = Registry.Enterprises.Values;
-            Enterprise[] enterprises = new Enterprise[values.Count];
-            values.CopyTo(enterprises, 0);
+            var enterprises = Registry.Enterprises;
 
             int maxLengthOfEnterpriseName = 0,
                 maxLengthOfProfit = 0,
@@ -122,11 +120,11 @@ namespace ConsoleFIA.Controllers
 
                 foreach (var finRes in enterprise.FinancialResults)
                 {
-                    string profit = String.Format($"{finRes.Profit:C2}");
+                    string profit = String.Format($"{finRes.Value.Profit:C2}");
                     if (maxLengthOfProfit < profit.Length)
                         maxLengthOfProfit = profit.Length;
 
-                    string rentability = String.Format($"{finRes.Rentability:P2}");
+                    string rentability = String.Format($"{finRes.Value.Rentability:P2}");
                     if (maxLengthOfRentability < rentability.Length)
                         maxLengthOfRentability = rentability.Length;
                 }
