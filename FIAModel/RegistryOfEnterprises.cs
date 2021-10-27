@@ -7,31 +7,21 @@ namespace FIAModel
 {
     public class RegistryOfEnterprises
     {
-        public Dictionary<string, Enterprise> Enterprises { get; set; } = new Dictionary<string, Enterprise>(); // Ключ - ИНН
+        public List<Enterprise> Enterprises { get; set; } = new List<Enterprise>();
 
         public void AddEnterprise(Enterprise enterprise)
         {
-            Enterprises.Add(enterprise.TIN, enterprise);
+            Enterprises.Add(enterprise);
         }
 
         public bool RemoveEnterprise(Enterprise enterprise)
         {
-            return Enterprises.Remove(enterprise.TIN);
+            return Enterprises.Remove(enterprise);
         }
 
         public Enterprise FindEnterprise(string name)
         {
-            Enterprise foundEnterprise = null;
-            
-            foreach (var enterprise in Enterprises)
-            {
-                string enterpriseName = enterprise.Value.Name.ToLower();
-                if (enterpriseName == name.ToLower())
-                {
-                    foundEnterprise = enterprise.Value;
-                }
-            }
-            return foundEnterprise;
+            return Enterprises.Find(enteprise => enteprise.Name == name);
         }
 
 
