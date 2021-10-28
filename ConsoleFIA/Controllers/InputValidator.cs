@@ -6,44 +6,39 @@ namespace ConsoleFIA.Controllers
 {
     static class InputValidator
     {
+        private delegate bool Validator(string input, out string inputError);
 
         public static string ReadName()
         {
-            string name; 
-            Input("Введите название предприятия: ", "NAME", out name);
-            return name;
+            return Input("Введите название предприятия: ", NameValidator);
         }
 
         public static string ReadTIN()
         {
-            string tin;
-            Input("Введите ИНН предприятия: ", "TIN", out tin);
-            return tin;
+            return Input("Введите ИНН предприятия: ", TINValidator);
         }
 
         public static string ReadAddress()
         {
-            string legalAddress;
-            Input("Введите адрес предприятия: ", "ADDRESS", out legalAddress);
-            return legalAddress;
+            return Input("Введите адрес предприятия: ", AddressValidator);
         }
         
-        public static string ReadYear()
+        public static int ReadYear()
         {
-            string year;
-            Input("Введите год (4 цифры): ", "YEAR", out year);
-            return year; 
+            string yearStr = Input("Введите год (4 цифры): ", YearValidator);
+            return int.Parse(yearStr); 
         }
 
-        public static int ReadQuarter(string year)
+        public static int ReadQuarter(int year)
         {
             string quarterStr;
             int quarter;
+
             do
             {
-                Input("Введите номер квартала (1 - 4): ", "QUARTER", out quarterStr);
+                quarterStr = Input("Введите номер квартала (1 - 4): ", QuaterValidator);
                 quarter = int.Parse(quarterStr);
-                if (quarter <= GetNumberOfAvailableQuarters(int.Parse(year)))
+                if (quarter <= GetNumberOfAvailableQuarters(year))
                 {
                     break;
                 }
@@ -60,20 +55,14 @@ namespace ConsoleFIA.Controllers
 
         public static decimal ReadIncome()
         {
-            string incomeStr;
-            decimal income; 
-            Input("Введите доход за квартал (в рублях): ", "INCOME", out incomeStr);
-            income = decimal.Parse(incomeStr);
-            return income;
+            string incomeStr = Input("Введите доход за квартал (в рублях): ", IncomeValidator);
+            return decimal.Parse(incomeStr);
         }
 
         public static decimal ReadConsumption()
         {
-            string consumptionStr;
-            decimal consumption;
-            Input("Введите расход за квартал (в рублях): ", "CONSUMPTION", out consumptionStr);
-            consumption = decimal.Parse(consumptionStr);
-            return consumption;
+            string consumptionStr = Input("Введите расход за квартал (в рублях): ", ConsumptionValidator);
+            return decimal.Parse(consumptionStr);
         }
 
         private static bool InputControl(string input, out string checkedInput, out string inputError)
@@ -86,6 +75,19 @@ namespace ConsoleFIA.Controllers
                 return false;
             }
             inputError = String.Empty;
+            return true;
+        }
+
+
+        private static bool NameValidator(string name, out string inputError)
+        {
+            inputError = "Ввод прошёл валидацию";
+            return true;
+        }
+
+        private static bool AddressValidator(string legalAddress, out string inputError)
+        {
+            inputError = "Ввод прошёл валидацию";
             return true;
         }
 
@@ -201,10 +203,12 @@ namespace ConsoleFIA.Controllers
             return true;
         }
 
-        private static void Input(string consoleRequest, string argumetType, out string argument)
+        private static string Input(string consoleRequest, Validator validator)
         {
+            string argument,
+                inputError;
             bool isValid;
-            string inputError;
+
             do
             {
                 isValid = false;
@@ -214,46 +218,7 @@ namespace ConsoleFIA.Controllers
 
                 if (InputControl(Console.ReadLine(), out argument, out inputError))
                 {
-                    switch (argumetType)
-                    {
-                        case "NAME":
-                        case "ADDRESS":
-                            {
-                                isValid = true;
-                                break;
-                            }
-                        case "TIN":
-                            {
-                                isValid = TINValidator(argument, out inputError);
-                                break;
-                            }
-                        case "YEAR":
-                            {
-                                isValid = YearValidator(argument, out inputError);
-                                break;
-                            }
-                        case "QUARTER":
-                            {
-                                isValid = QuaterValidator(argument, out inputError);
-                                break;
-                            }
-                        case "INCOME":
-                            {
-                                isValid = IncomeValidator(argument, out inputError);
-                                break;
-                            }
-                        case "CONSUMPTION":
-                            {
-                                isValid = ConsumptionValidator(argument, out inputError);
-                                break;
-                            }
-                        default:
-                            {
-                                inputError = "Не найден подходяхий валидатор";
-                                isValid = false;
-                                break;
-                            }
-                    }
+                    isValid = validator(argument, out inputError);
                 }
 
                 if (!isValid)
@@ -268,6 +233,9 @@ namespace ConsoleFIA.Controllers
                 }
 
             } while (true);
+
+            return argument;
         }
+
     }
 }
