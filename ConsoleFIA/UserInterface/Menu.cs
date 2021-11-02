@@ -13,7 +13,22 @@ namespace ConsoleFIA.UserInterface
             Items = items;
         }
 
-        public void Print(string programTitle)
+        public bool UserChoice(ConsoleKey key)
+        {
+            foreach(var item in Items)
+            {
+                if(item.Key == key)
+                {
+                    if (item is MenuAction)
+                        (item as MenuAction)?.Action();
+                    if (item is MenuClose)
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        public void PrintMainMenu(string programTitle)
         {
             int height = 7, width = 40;
             int left = (Console.WindowWidth - width) / 2;
@@ -23,13 +38,26 @@ namespace ConsoleFIA.UserInterface
             Console.WriteLine("        " + programTitle);
             foreach (var item in Items)
             {
-                item.Print(left + 2);
+                item.PrintForMainMenu(left + 2);
             }
 
             Console.ResetColor();
         }
 
-        static void PrintMenuFrame(int height, int width, int left, int top)
+        public void PrintSubMenu()
+        {
+            Console.BackgroundColor = ConsoleColor.DarkCyan;
+            foreach (var item in Items)
+            {
+                item.PrintForSubMenu();
+                Console.Write("  ");
+            }
+            //Console.Write(new string(' ', Console.WindowWidth - Console.CursorLeft));
+            Console.WriteLine();
+            Console.ResetColor();
+        }
+
+        private static void PrintMenuFrame(int height, int width, int left, int top)
         {
             Console.ForegroundColor = ConsoleColor.Cyan;
             string horisontalLine = new string('═', width - 2);

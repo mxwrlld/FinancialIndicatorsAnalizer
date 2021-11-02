@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace FIAModel
 {
     public class Enterprise
     {
-        public string Name { get; }
-        public string TIN { get; }
-        public string LegalAddress { get; }
+        public string Name { get; set; }
+        public string TIN { get; set; }
+        public string LegalAddress { get; set; }
 
-        public Dictionary<Tuple<int, int>, FinancialResult> FinancialResults { get; set; }
-            = new Dictionary<Tuple<int, int>, FinancialResult>();
+        public Dictionary<Tuple<Year, int>, FinancialResult> FinancialResults { get; set; }
+            = new Dictionary<Tuple<Year, int>, FinancialResult>();
+
 
         public Enterprise(string name, string tin, string legalAddress)
         {
@@ -20,21 +22,54 @@ namespace FIAModel
             LegalAddress = legalAddress;
         }
 
+        public Enterprise(string name, string tin, string legalAddress, List<FinancialResult> FR): this(name, tin, legalAddress)
+        {
+            foreach (var fr in FR)
+            {
+                FinancialResults.Add(new Tuple<Year, int>(new Year(fr.Year.year), fr.Quarter), fr);
+            }
+        }
+
         public void AddFinancialResult(FinancialResult financialResult)
         {
-            FinancialResults.Add(new Tuple<int, int>(financialResult.Year, financialResult.Quarter) , financialResult);
+            FinancialResults.Add(new Tuple<Year, int>(new Year(financialResult.Year.year), financialResult.Quarter) , financialResult);
         }
 
         public bool RemoveFinancialResult(FinancialResult financialResult)
         {
-            var key = new Tuple<int, int>(financialResult.Year, financialResult.Quarter);
+            var key = new Tuple<Year, int>(new Year(financialResult.Year.year), financialResult.Quarter);
             return FinancialResults.Remove(key);
         }
 
-        public bool RemoveFinancialResult(int year, int quarter)
+        public bool RemoveFinancialResult(int yearInt, int quarter)
         {
-            var key = new Tuple<int, int>(year, quarter);
+            var year = new Year(yearInt);
+            var key = new Tuple<Year, int>(year, quarter);
             return FinancialResults.Remove(key);
+        }
+
+        public Enterprise FindFinancialResults(Tuple<Year, int> tuple)
+        {
+            Enterprise enterprise = new Enterprise(Name, TIN, LegalAddress);
+            Year year = tuple.Item1;
+            int quarter = tuple.Item2;
+            if(year.year == -1)
+            {
+                var frList = this.FinancialResults.Where(fr => fr.Value.Quarter == quarter).Select(x => x.Value).ToList();
+                foreach (var fr in frList)
+                {
+                    enterprise.AddFinancialResult(fr);
+                }
+            }
+            if (quarter == -1)
+            {
+                var frList = this.FinancialResults.Where(fr => fr.Value.Year.year == year.year).Select(x => x.Value).ToList();
+                foreach (var fr in frList)
+                {
+                    enterprise.AddFinancialResult(fr);
+                }
+            }
+            return enterprise;
         }
 
         // Для верного удаления объектов в регистре
@@ -59,6 +94,58 @@ namespace FIAModel
                 $"\nИНН: {TIN}" +
                 $"\nАдрес: {LegalAddress}" +
                 "\n----------------------------------");
+        }
+
+        public decimal SumOfIncome
+        {
+            get
+            {
+                decimal sum = 0;
+                foreach (var fr in FinancialResults)
+                {
+                    sum += fr.Value.Income;
+                }
+                return sum;
+            }
+        }
+
+        public decimal SumOfConsumption
+        {
+            get
+            {
+                decimal sum = 0;
+                foreach (var fr in FinancialResults)
+                {
+                    sum += fr.Value.Consumption;
+                }
+                return sum;
+            }
+        }
+
+        public decimal SumOfProfit
+        {
+            get
+            {
+                decimal sum = 0;
+                foreach (var fr in FinancialResults)
+                {
+                    sum += fr.Value.Profit;
+                }
+                return sum;
+            }
+        }
+
+        public double SumOfRentability
+        {
+            get
+            {
+                double sum = 0;
+                foreach (var fr in FinancialResults)
+                {
+                    sum += fr.Value.Rentability;
+                }
+                return sum;
+            }
         }
     }
 }

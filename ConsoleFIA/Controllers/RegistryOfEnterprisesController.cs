@@ -3,139 +3,185 @@ using ConsoleFIA.Mocks;
 using ConsoleFIA.UserInterface;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ConsoleFIA.Controllers
 {
     class RegistryOfEnterprisesController
     {
         public RegistryOfEnterprises Registry { get; }
+        private List<Enterprise> Enterprises => Registry.Enterprises;
+
+        private readonly Menu RegistryMenu;
+        private readonly Menu SortMenu;
+
+        private readonly Table<Enterprise> table;
+
+        private string searchBy = null;
+        public string SearchBy { get => searchBy; set => searchBy = value.ToLower(); }
+        private Func<Enterprise, object> orderBy = (enterprise => enterprise.Name);
+        private List<Enterprise> OrderedEnterprises
+        {
+            get
+            {
+                var enterprises = Registry.Enterprises;
+                if (!string.IsNullOrEmpty(SearchBy))
+                {
+                    enterprises = enterprises.Where(entr => entr.Name.ToLower().Contains(SearchBy) || entr.TIN.ToLower().Contains(SearchBy) || entr.LegalAddress.ToLower().Contains(SearchBy))
+                    .ToList();
+                }
+                
+                return enterprises.OrderBy(orderBy).ToList();
+            }
+        }
+            
 
         public RegistryOfEnterprisesController()
         {
             Registry = new RegistryOfEnterprises();
             Registry.Enterprises = MocksFabric.GetMockEnterprisesReports();
+            RegistryMenu = new Menu(new List<MenuItem>()
+            {
+                new MenuAction(ConsoleKey.A, "Добавить предприятие", AddEnterprise),
+                new MenuAction(ConsoleKey.S, "Сортировка", SortMenuSubPage),
+                new MenuAction(ConsoleKey.D, "Поиск", Search),
+                new MenuClose(ConsoleKey.Q, "Главное меню"),
+            });
+            SortMenu = new Menu(new List<MenuItem>
+            {
+                new MenuAction(ConsoleKey.Z, "Сортировка по имени",
+                    () => { orderBy = (enterprise => enterprise.Name); }),
+                new MenuAction(ConsoleKey.X, "Сортировка по ИНН",
+                    () => { orderBy = (enterprise => enterprise.TIN); }),
+                new MenuAction(ConsoleKey.C, "Сортировка по адресу",
+                    () => { orderBy = (enterprise => enterprise.LegalAddress); }),
+                new MenuClose(ConsoleKey.Q, "Назад"),
+            });
+
+            int indentLength = 2;
+            table = new Table<Enterprise>(new List<TableColumn<Enterprise>>
+            {
+                new TableColumn<Enterprise>("Предприятие", indentLength,
+                    Table<Enterprise>.GetMaxContentLength(Enterprises.Select(x => x.Name.ToString()).ToList()), 
+                    entr => entr.Name),
+                new TableColumn<Enterprise>("ИНН", indentLength, 
+                    10, entr => entr.TIN),
+                new TableColumn<Enterprise>("Адрес", indentLength,
+                    Table<Enterprise>.GetMaxContentLength(Enterprises.Select(x => x.LegalAddress.ToString()).ToList()),
+                    entr => entr.LegalAddress),
+            });
         }
 
-        public void FillRecord()
+
+        private void Search()
+        {
+            Console.Clear();
+            Console.WriteLine();
+            Console.Write("Поисковый запрос: ");
+            SearchBy = Console.ReadLine();
+
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine("Нажмите любую кнопку для продолжения ... ");
+            Console.ReadKey();
+        }
+
+        private void SortMenuSubPage()
+        {
+            Console.Clear();
+            SortMenu.PrintSubMenu();
+
+            RegistryPrint();
+
+            var key = Console.ReadKey().Key;
+            SortMenu.UserChoice(key);
+        }
+
+        public bool RegistryOfEnterprisesPage()
+        {
+            Console.Clear();
+            RegistryMenu.PrintSubMenu();
+
+            RegistryPrint();
+
+            var key = Console.ReadKey().Key;
+            return RegistryMenu.UserChoice(key);
+        }
+
+        public void RegistryPrint()
+        {
+            table.SetWindowSize();
+
+            table.Print(OrderedEnterprises);
+        }
+
+        private void AddEnterprise()
         {
             Console.Clear();
 
             Enterprise enterprise;
 
-            do
+            Console.WriteLine();
+            Console.WriteLine("Получение информации о предприятии");
+            Console.WriteLine();
+
+            string name = InputValidator.ReadName();
+
+            var existingEnterprise = Registry.FindEnterprise(name);
+            if (existingEnterprise != null)
             {
-                /*
-                 * Возможность выбора имеющегося предприятия 
-                 * без ввода инн и адреса 
-                 */
-
-                Console.WriteLine();
-                Console.WriteLine("Получение информации о предприятии");
-                Console.WriteLine();
-
-                string name = InputValidator.ReadName();
-
-                var existingEnterprise = Registry.FindEnterprise(name);
-                if (existingEnterprise != null)
+                Console.WriteLine("Предприятие уже существует!");
+                Console.WriteLine(existingEnterprise);
+                Console.WriteLine("Желаете изменить информацию?");
+                Console.WriteLine("Да - [любая кнопка] || Нет - [N]");
+                if (Console.ReadKey().Key != ConsoleKey.N)
                 {
-                    Console.WriteLine("Искомое предприятие: ");
-                    Console.WriteLine(existingEnterprise);
-                    Console.WriteLine("Да - [любая кнопка] || Нет - [N]");
                     enterprise = existingEnterprise;
-                }
-                else
-                {
                     string tin = InputValidator.ReadTIN();
                     string legalAddress = InputValidator.ReadAddress();
 
-                    enterprise = new Enterprise(name, tin, legalAddress);
-                    Registry.AddEnterprise(enterprise);
-                    Console.WriteLine(enterprise);
-                    break;
-                }
+                    enterprise.TIN = tin;
+                    enterprise.LegalAddress = legalAddress;
 
-            } while (Console.ReadKey().Key == ConsoleKey.N);
-
-
-            do
-            {
-                Console.WriteLine();
-                Console.WriteLine("Заполнение финансовой отчётности");
-
-                int year = InputValidator.ReadYear();
-                int quarter = InputValidator.ReadQuarter(year);
-                decimal income = InputValidator.ReadIncome();
-                decimal consumption = InputValidator.ReadConsumption();
-
-                FinancialResult financialResult = new FinancialResult(year, quarter, income, consumption);
-                enterprise.AddFinancialResult(financialResult);
-
-                Console.WriteLine(financialResult);
-
-                Console.WriteLine("Продолжить - любая кнопка  |" + "|  Выход - ESC");
-            } while (Console.ReadKey().Key != ConsoleKey.Escape);
-        }
-
-        public void RegistryTableForm()
-        {
-
-            var maxContentLengthOfColumns = GetMaxContentLengthOfColumns();
-
-            int indentLength = 2;
-            RegistryOfEnterprisesTable table = new RegistryOfEnterprisesTable(new List<TableColumn>
-            {
-                new TableColumn("Предприятие", indentLength, maxContentLengthOfColumns[0]),
-                new TableColumn("Год", indentLength, 4),
-                new TableColumn("Квартал", indentLength, 1),
-                new TableColumn("Прибыль", indentLength, maxContentLengthOfColumns[1]),
-                new TableColumn("Рентабельность", indentLength, maxContentLengthOfColumns[2])
-            }, Registry);
-
-
-            int maxWindowWidth = 6; // Количество соединительных символов вроде "┌", "┐" и т.д.
-            foreach (var column in table.Columns)
-            {
-                maxWindowWidth += column.Width;
-            }
-            Console.SetWindowSize(maxWindowWidth, 20);
-
-            Console.Clear();
-            table.Print();
-            Console.ReadKey();
-        }
-
-        private int[] GetMaxContentLengthOfColumns()
-        {
-            var maxWidthOfColumns = new int[3];
-
-            var enterprises = Registry.Enterprises;
-
-            int maxLengthOfEnterpriseName = 0,
-                maxLengthOfProfit = 0,
-                maxLengthOfRentability = 0;
-            foreach (var enterprise in enterprises)
-            {
-                if (maxLengthOfEnterpriseName < enterprise.Name.Length)
-                    maxLengthOfEnterpriseName = enterprise.Name.Length;
-
-                foreach (var finRes in enterprise.FinancialResults)
-                {
-                    string profit = String.Format($"{finRes.Value.Profit:C2}");
-                    if (maxLengthOfProfit < profit.Length)
-                        maxLengthOfProfit = profit.Length;
-
-                    string rentability = String.Format($"{finRes.Value.Rentability:P2}");
-                    if (maxLengthOfRentability < rentability.Length)
-                        maxLengthOfRentability = rentability.Length;
+                    Console.WriteLine();
+                    Console.WriteLine("Информация успешно обновлена");
                 }
             }
+            else
+            {
+                string tin = InputValidator.ReadTIN();
+                string legalAddress = InputValidator.ReadAddress();
 
+                enterprise = new Enterprise(name, tin, legalAddress);
+                Registry.AddEnterprise(enterprise);
+                Console.WriteLine(enterprise);
+            }
 
-            maxWidthOfColumns[0] = maxLengthOfEnterpriseName;
-            maxWidthOfColumns[1] = maxLengthOfProfit;
-            maxWidthOfColumns[2] = maxLengthOfRentability;
-            return maxWidthOfColumns;
         }
+
+        //private int[] GetMaxContentLengthOfColumns()
+        //{
+        //    var maxWidthOfColumns = new int[2];
+
+        //    var enterprises = Registry.Enterprises;
+
+        //    int maxLengthOfEnterpriseName = 0,
+        //        maxLengthOfAddress = 0;
+
+        //    foreach (var enterprise in enterprises)
+        //    {
+        //        if (maxLengthOfEnterpriseName < enterprise.Name.Length)
+        //            maxLengthOfEnterpriseName = enterprise.Name.Length;
+
+        //        if (maxLengthOfAddress < enterprise.LegalAddress.Length)
+        //            maxLengthOfAddress = enterprise.LegalAddress.Length;
+        //    }
+
+
+        //    maxWidthOfColumns[0] = maxLengthOfEnterpriseName;
+        //    maxWidthOfColumns[1] = maxLengthOfAddress;
+        //    return maxWidthOfColumns;
+        //}
 
     }
 }

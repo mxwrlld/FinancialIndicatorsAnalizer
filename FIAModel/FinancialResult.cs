@@ -4,16 +4,16 @@ namespace FIAModel
 {
     public class FinancialResult
     {
-        public int Year { get; }
-        public int Quarter { get; }
-        public decimal Income { get;}
-        public decimal Consumption { get;}
+        public Year Year { get; set; }
+        public int Quarter { get; set; }
+        public decimal Income { get; set; }
+        public decimal Consumption { get; set; }
         public decimal Profit => (Income - Consumption);
         public double Rentability => (double)(Profit / Consumption);
 
         public FinancialResult(int year, int quarter, decimal income, decimal consumption)
         {
-            Year = year;
+            Year = new Year(year);
             Quarter = quarter;
             Income = income;
             Consumption = consumption;

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ConsoleFIA.UserInterface
 {
@@ -15,7 +13,7 @@ namespace ConsoleFIA.UserInterface
             Title = title;
         }
 
-        public void Print(int left)
+        public void PrintForMainMenu(int left)
         {
             Console.CursorLeft = left;
             Console.ForegroundColor = ConsoleColor.Yellow;
@@ -23,5 +21,30 @@ namespace ConsoleFIA.UserInterface
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine(" - " + Title);
         }
+
+        public void PrintForSubMenu()
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write(Key);
+            Console.Write(" ");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write(Title);
+        }
+
+    }
+
+    class MenuAction : MenuItem
+    {
+        public Action Action { get; }
+
+        public MenuAction(ConsoleKey key, string title, Action action) : base(key, title)
+        {
+            Action = action;
+        }
+    }
+
+    class MenuClose : MenuItem
+    {
+        public MenuClose(ConsoleKey key, string title): base(key, title) {}
     }
 }

@@ -237,5 +237,30 @@ namespace ConsoleFIA.Controllers
             return argument;
         }
 
+        public static int ReadInput(List<int> validValues)
+        {
+            int inputInt;
+            bool isValid = false;
+            do
+            {
+                Console.WriteLine();
+                Console.Write("Ввод: ");
+                string input = Console.ReadLine();
+                inputInt = int.Parse(input);
+                foreach (var value in validValues)
+                {
+                    if (inputInt == value)
+                    {
+                        isValid = true;
+                        break;
+                    }
+                }
+                if (isValid)
+                    break;
+                Console.WriteLine("Ошибка ввода: введено недопустимое значение");
+            } while (true);
+            return inputInt;
+        }
+
     }
 }
