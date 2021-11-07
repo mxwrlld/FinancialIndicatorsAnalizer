@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace FIAModel
 {
@@ -9,7 +10,16 @@ namespace FIAModel
         public decimal Income { get; set; }
         public decimal Consumption { get; set; }
         public decimal Profit => (Income - Consumption);
-        public double Rentability => (double)(Profit / Consumption);
+        public double Rentability
+        {
+            get
+            {
+                if (Consumption == 0)
+                    return (double)Profit;
+                else
+                    return (double)(Profit / Consumption);
+            }
+        }
 
         public FinancialResult(int year, int quarter, decimal income, decimal consumption)
         {
@@ -21,13 +31,14 @@ namespace FIAModel
 
         public override string ToString()
         {
-            return String.Format($"\nГод: {Year}" +
-                $"\nКвартал: {Quarter}" +
-                $"\nДоход: {Income}" +
-                $"\nРасход: {Consumption}" +
-                $"\nПрибыль: {Profit}" +
-                 "\nРентабельность: {0:P2}", Rentability +
-                 "\n**********************************");
+            StringBuilder financialResult = new StringBuilder();
+            financialResult.Append($"\nГод:            {Year}");
+            financialResult.Append($"\nКвартал:        {Quarter}");
+            financialResult.Append($"\nДоход:          {Income}");
+            financialResult.Append($"\nРасход:         {Consumption}");
+            financialResult.Append($"\nРентабельность: {Rentability:P2}");
+            financialResult.Append("\n**********************************");
+            return financialResult.ToString();
         }
     }
 }

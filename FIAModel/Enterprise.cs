@@ -89,50 +89,27 @@ namespace FIAModel
 
         public override string ToString()
         {
-            return String.Format("\nПредприятие" +
-                $"\nНазвание: {Name}" +
-                $"\nИНН: {TIN}" +
-                $"\nАдрес: {LegalAddress}" +
-                "\n----------------------------------");
+            StringBuilder enterprise = new StringBuilder();
+            enterprise.Append($"\nНазвание: {Name}");
+            enterprise.Append($"\n     ИНН: {TIN}");
+            enterprise.Append($"\n   Адрес: {LegalAddress}");
+            enterprise.Append("\n-------------------------------");
+            return enterprise.ToString();
         }
 
         public decimal SumOfIncome
         {
-            get
-            {
-                decimal sum = 0;
-                foreach (var fr in FinancialResults)
-                {
-                    sum += fr.Value.Income;
-                }
-                return sum;
-            }
+            get => SumOf(fr => fr.Income);
         }
 
         public decimal SumOfConsumption
         {
-            get
-            {
-                decimal sum = 0;
-                foreach (var fr in FinancialResults)
-                {
-                    sum += fr.Value.Consumption;
-                }
-                return sum;
-            }
+            get => SumOf(fr => fr.Consumption);
         }
 
         public decimal SumOfProfit
         {
-            get
-            {
-                decimal sum = 0;
-                foreach (var fr in FinancialResults)
-                {
-                    sum += fr.Value.Profit;
-                }
-                return sum;
-            }
+            get => SumOf(fr => fr.Profit);
         }
 
         public double SumOfRentability
@@ -146,6 +123,16 @@ namespace FIAModel
                 }
                 return sum;
             }
+        }
+
+        private decimal SumOf(Func<FinancialResult, decimal> getParameter)
+        {
+            decimal sum = 0;
+            foreach (var fr in FinancialResults)
+            {
+                sum += getParameter(fr.Value);
+            }
+            return sum;
         }
     }
 }

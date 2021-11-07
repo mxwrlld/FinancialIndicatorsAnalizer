@@ -129,6 +129,7 @@ namespace ConsoleFIA.UserInterface
 
         public void PrintHeader()
         {
+            Console.WriteLine();
 
             Console.Write("┌");
             for (int i = 0; i < Columns.Count; i++)
@@ -195,15 +196,7 @@ namespace ConsoleFIA.UserInterface
             return maxContentLength;
         }
 
-        public void UpdateWidthOfColumns()
-        {
-            foreach (var column in Columns)
-            {
-
-            }
-        }
-
-        public void Print(IEnumerable<T> rows)
+        public void Print(IEnumerable<T> rows, T selectedRow)
         {
             PrintHeader();
             Console.WriteLine();
@@ -211,27 +204,35 @@ namespace ConsoleFIA.UserInterface
             foreach (var row in rows)
             {
                 Console.Write("│");
-                foreach (var column in Columns)
+                if (row == selectedRow)
                 {
-                    column.PrintContent(row);
+                    Console.BackgroundColor = ConsoleColor.White;
+                    Console.ForegroundColor = ConsoleColor.Black;
                 }
-
+                for (int i = 0; i < Columns.Count; i++)
+                {
+                    if (i == Columns.Count - 1)
+                        Columns[i].PrintContent(row, false, true);
+                    else
+                        Columns[i].PrintContent(row);
+                }
+                Console.ResetColor();
                 Console.WriteLine();
             }
             PrintFooter();
         }
 
-
         public void SetWindowSize()
         {
-            int maxWindowWidth = 6; // Количество соединительных символов вроде "┌", "┐" и т.д.
+            int maxWindowWidth = 8; // Количество соединительных символов вроде "┌", "┐" и т.д.
             foreach (var column in Columns)
             {
                 if (!column.Hidden)
                     maxWindowWidth += column.Width;
             }
 
-            Console.SetWindowSize(maxWindowWidth, 20);
+            Console.SetWindowSize(maxWindowWidth > Console.LargestWindowWidth
+                ? Console.LargestWindowWidth : maxWindowWidth, 20);
         }
     }
 
@@ -250,6 +251,7 @@ namespace ConsoleFIA.UserInterface
 
         public void PrintHeader()
         {
+            Console.WriteLine();
 
             Console.Write("┌");
             for (int i = 0; i < FisrtColumns.Count; i++)
@@ -391,41 +393,63 @@ namespace ConsoleFIA.UserInterface
 
 
         // Для вложенных структур
-        public void Print(IEnumerable<T> rows, Func<T, int, K> getNestedEntity, Func<T, int> getAmountOfChild)
+        public void Print(IEnumerable<T> rows, Func<T, int, K> getNestedEntity, Func<T, int> getAmountOfChild, int selectedRowIndex)
         {
             PrintHeader();
             Console.WriteLine();
 
-            var entities = rows; // Для лучшего понимания происходящего 
+            int currentRowIndex = 0;
 
-            foreach (var entity in entities)
+            foreach (var row in rows)
             {
-
                 Console.Write("│");
+                if (currentRowIndex == selectedRowIndex)
+                {
+                    Console.BackgroundColor = ConsoleColor.White;
+                    Console.ForegroundColor = ConsoleColor.Black;
+                }
                 foreach (var column in FisrtColumns)
                 {
-                    column.PrintContent(entity);
+                    column.PrintContent(row);
                 }
-                foreach (var column in OtherColumns)
+                for (int j = 0; j < OtherColumns.Count; ++j)
                 {
-                    column.PrintContent(getNestedEntity(entity, 0));
+                    if (j == OtherColumns.Count - 1)
+                        OtherColumns[j].PrintContent(getNestedEntity(row, 0), false, true);
+                    else
+                        OtherColumns[j].PrintContent(getNestedEntity(row, 0));
                 }
+                ++currentRowIndex;
+                Console.ResetColor();
                 Console.WriteLine();
 
-                int amountOfChild = getAmountOfChild(entity);
+
+                int amountOfChild = getAmountOfChild(row);
                 for (int i = 1; i < amountOfChild; ++i)
                 {
                     Console.Write("│");
+                    if (currentRowIndex == selectedRowIndex)
+                    {
+                        Console.BackgroundColor = ConsoleColor.White;
+                        Console.ForegroundColor = ConsoleColor.Black;
+                    }
+                    
                     foreach (var column in FisrtColumns)
                     {
-                        column.PrintContent(null);
+                        column.PrintContent(row, true);
                     }
-                    foreach (var column in OtherColumns)
+                    for(int j = 0; j < OtherColumns.Count; ++j)
                     {
-                        column.PrintContent(getNestedEntity(entity, i));
+                        if(j == OtherColumns.Count - 1)
+                            OtherColumns[j].PrintContent(getNestedEntity(row, i), false, true);
+                        else
+                            OtherColumns[j].PrintContent(getNestedEntity(row, i));
                     }
+                    ++currentRowIndex;
+                    Console.ResetColor();
                     Console.WriteLine();
                 }
+                Console.ResetColor();
             }
 
             PrintFooter();
@@ -434,19 +458,20 @@ namespace ConsoleFIA.UserInterface
 
         public void SetWindowSize()
         {
-            int maxWindowWidth = 6; // Количество соединительных символов вроде "┌", "┐" и т.д.
+            int maxWindowWidth = 8; // Количество соединительных символов вроде "┌", "┐" и т.д.
             foreach (var column in FisrtColumns)
             {
-                if(!column.Hidden)
+                if (!column.Hidden)
                     maxWindowWidth += column.Width;
-            }            
+            }
             foreach (var column in OtherColumns)
             {
                 if (!column.Hidden)
                     maxWindowWidth += column.Width;
             }
 
-            Console.SetWindowSize(maxWindowWidth, 20);
+            Console.SetWindowSize(maxWindowWidth > Console.LargestWindowWidth
+                ? Console.LargestWindowWidth : maxWindowWidth, 20);
         }
 
     }

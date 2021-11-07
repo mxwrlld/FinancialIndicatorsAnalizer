@@ -7,6 +7,8 @@ namespace ConsoleFIA.UserInterface
         public ConsoleKey Key { get; set; }
         public string Title { get; set; }
 
+        public bool Hidden { get; set; }
+
         public MenuItem(ConsoleKey key, string title)
         {
             Key = key;
@@ -37,9 +39,10 @@ namespace ConsoleFIA.UserInterface
     {
         public Action Action { get; }
 
-        public MenuAction(ConsoleKey key, string title, Action action) : base(key, title)
+        public MenuAction(ConsoleKey key, string title, Action action, bool hidden = false) : base(key, title)
         {
             Action = action;
+            Hidden = hidden;
         }
     }
 

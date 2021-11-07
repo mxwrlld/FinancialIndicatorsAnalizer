@@ -44,16 +44,21 @@ namespace ConsoleFIA.UserInterface
             Console.ResetColor();
         }
 
-        public void PrintSubMenu()
+        public void PrintSubMenu(ConsoleColor consoleColor = ConsoleColor.DarkCyan)
         {
-            Console.BackgroundColor = ConsoleColor.DarkCyan;
+            Console.BackgroundColor = consoleColor;
             foreach (var item in Items)
             {
-                item.PrintForSubMenu();
-                Console.Write("  ");
+                if (!item.Hidden)
+                {
+                    item.PrintForSubMenu();
+                    Console.Write("  ");
+                }
             }
-            //Console.Write(new string(' ', Console.WindowWidth - Console.CursorLeft));
-            Console.WriteLine();
+            if(Console.WindowWidth > Console.CursorLeft)
+            {
+                Console.Write(new string(' ', Console.WindowWidth - Console.CursorLeft));
+            }
             Console.ResetColor();
         }
 
