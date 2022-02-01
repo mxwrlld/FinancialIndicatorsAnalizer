@@ -93,9 +93,9 @@ namespace ConsoleFIA.Controllers
 
         private static bool TINValidator(string tin, out string inputError)
         {
-            if (tin.Length != 3)
+            if (tin.Length != 10)
             {
-                inputError = "ИНН должен состоять из 3 цифр!"; // Из 10, просто так легче проверять :)
+                inputError = "ИНН должен состоять из 10 цифр!"; // Из 10, просто так легче проверять :)
                 return false;
             }
             if (tin.Substring(0, 2) == "00")
