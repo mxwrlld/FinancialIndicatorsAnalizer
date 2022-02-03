@@ -2,7 +2,7 @@
 
 namespace FIADbContext.Migrations
 {
-    public partial class CreateDbCodeFirstMigration : Migration
+    public partial class CreateCodeSecondMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -10,8 +10,8 @@ namespace FIADbContext.Migrations
                 name: "Enterprise",
                 columns: table => new
                 {
-                    TIN = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TIN = table.Column<string>(type: "nvarchar(10)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(50)", nullable: false),
                     LegalAddress = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -23,26 +23,29 @@ namespace FIADbContext.Migrations
                 name: "FinancialResult",
                 columns: table => new
                 {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Year = table.Column<int>(type: "int", nullable: false),
                     Quarter = table.Column<int>(type: "int", nullable: false),
                     Income = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Consumption = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    EnterpriseTIN = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    Enterprise = table.Column<string>(type: "nvarchar(10)", nullable: false)
                 },
                 constraints: table =>
                 {
+                    table.PrimaryKey("PK_FinancialResult", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_FinancialResult_Enterprise_EnterpriseTIN",
-                        column: x => x.EnterpriseTIN,
+                        name: "FK_FinancialResult_Enterprise_Enterprise",
+                        column: x => x.Enterprise,
                         principalTable: "Enterprise",
                         principalColumn: "TIN",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_FinancialResult_EnterpriseTIN",
+                name: "IX_FinancialResult_Enterprise",
                 table: "FinancialResult",
-                column: "EnterpriseTIN");
+                column: "Enterprise");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

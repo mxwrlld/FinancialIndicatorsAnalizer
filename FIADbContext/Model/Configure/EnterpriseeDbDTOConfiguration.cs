@@ -11,9 +11,16 @@ namespace FIADbContext.Model.Configure
     {
         public void Configure(EntityTypeBuilder<EnterpriseDbDTO> builder)
         {
+            builder.HasKey("TIN");
+
             builder.ToTable("Enterprise");
 
-            builder.HasKey("TIN");
+            builder.Property(enterprise => enterprise.TIN)
+                .HasColumnType("nvarchar(10)");
+
+            builder.Property(enterprise => enterprise.Name)
+                .HasColumnType("nvarchar(50)")
+                .IsRequired();
         }
     }
 }

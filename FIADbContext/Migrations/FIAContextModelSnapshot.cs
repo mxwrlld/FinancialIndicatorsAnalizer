@@ -21,13 +21,14 @@ namespace FIADbContext.Migrations
             modelBuilder.Entity("FIADbContext.Model.DTO.EnterpriseDbDTO", b =>
                 {
                     b.Property<string>("TIN")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<string>("LegalAddress")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("TIN");
 
@@ -36,11 +37,18 @@ namespace FIADbContext.Migrations
 
             modelBuilder.Entity("FIADbContext.Model.DTO.FinancialResultDbDTO", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
                     b.Property<decimal>("Consumption")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("EnterpriseTIN")
-                        .HasColumnType("nvarchar(450)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(10)")
+                        .HasColumnName("Enterprise");
 
                     b.Property<decimal>("Income")
                         .HasColumnType("decimal(18,2)");
@@ -51,6 +59,8 @@ namespace FIADbContext.Migrations
                     b.Property<int>("Year")
                         .HasColumnType("int");
 
+                    b.HasKey("Id");
+
                     b.HasIndex("EnterpriseTIN");
 
                     b.ToTable("FinancialResult");
@@ -59,10 +69,17 @@ namespace FIADbContext.Migrations
             modelBuilder.Entity("FIADbContext.Model.DTO.FinancialResultDbDTO", b =>
                 {
                     b.HasOne("FIADbContext.Model.DTO.EnterpriseDbDTO", "Enterprise")
-                        .WithMany()
-                        .HasForeignKey("EnterpriseTIN");
+                        .WithMany("FinancialResults")
+                        .HasForeignKey("EnterpriseTIN")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Enterprise");
+                });
+
+            modelBuilder.Entity("FIADbContext.Model.DTO.EnterpriseDbDTO", b =>
+                {
+                    b.Navigation("FinancialResults");
                 });
 #pragma warning restore 612, 618
         }

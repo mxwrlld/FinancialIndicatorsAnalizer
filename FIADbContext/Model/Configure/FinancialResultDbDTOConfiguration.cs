@@ -11,9 +11,28 @@ namespace FIADbContext.Model.Configure
     {
         public void Configure(EntityTypeBuilder<FinancialResultDbDTO> builder)
         {
-            builder.HasNoKey();
+            builder.HasKey("Id");
 
             builder.ToTable("FinancialResult");
+
+            builder.Property(finres => finres.Year)
+                .IsRequired();
+            builder.Property(finres => finres.Quarter)
+                .IsRequired();
+            builder.Property(finres => finres.Income)
+                .IsRequired();
+            builder.Property(finres => finres.Consumption)
+                .IsRequired();
+
+            builder.Property(finres => finres.EnterpriseTIN)
+                .HasColumnName("Enterprise")
+                .HasColumnType("nvarchar(10)")
+                .IsRequired();
+
+            builder
+                .HasOne<EnterpriseDbDTO>(finres => finres.Enterprise)
+                .WithMany(enterprise => enterprise.FinancialResults)
+                .HasForeignKey(finres => finres.EnterpriseTIN);
         }
     }
 }
