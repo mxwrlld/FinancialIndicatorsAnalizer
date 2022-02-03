@@ -1,0 +1,13 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace FIADbContext.Model.DTO
+{
+    class EnterpriseDbDTO
+    {
+        public string TIN { get; set; }
+        public string Name { get; set; }
+        public string LegalAddress { get; set; }
+    }
+}
