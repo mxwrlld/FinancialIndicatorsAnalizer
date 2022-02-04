@@ -4,7 +4,7 @@ using System.Text;
 
 namespace FIADbContext.Model.DTO
 {
-    class FinancialResultDbDTO
+    public class FinancialResultDbDTO
     {
         public int Id { get; set; }
         public int Year { get; set; }

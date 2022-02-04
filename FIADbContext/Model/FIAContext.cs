@@ -8,7 +8,7 @@ using FIADbContext.Connection;
 
 namespace FIADbContext.Model
 {
-    class FIAContext: DbContext
+    public class FIAContext: DbContext
     {
 
         public DbSet<EnterpriseDbDTO> Enterprises { get; set; }

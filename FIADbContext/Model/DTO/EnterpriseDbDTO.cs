@@ -4,7 +4,7 @@ using System.Text;
 
 namespace FIADbContext.Model.DTO
 {
-    class EnterpriseDbDTO
+    public class EnterpriseDbDTO
     {
         public string TIN { get; set; }
         public string Name { get; set; }

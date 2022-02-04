@@ -1,16 +1,15 @@
 ﻿using ConsoleFIA.Controllers;
 using ConsoleFIA.UserInterface;
+using ConsoleFIA.DB;
 using System;
 using System.Text;
-/*
- * Четвертая версия проекта 
- */
 
 namespace ConsoleFIA
 {
     class ConsoleFIA
     {
         static RegistryController financialStatementsController = new RegistryController();
+
 
         static void Main()
         {
@@ -39,6 +38,7 @@ namespace ConsoleFIA
                     break;
                 case ConsoleKey.Q:
                     Console.Clear();
+                    DbManager.Updateenterprises(financialStatementsController.Registry.Enterprises);
                     return false;
             }
             return true;

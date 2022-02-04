@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ConsoleFIA.Files.DTO;
+using ConsoleFIA.DB;
 
 namespace ConsoleFIA.Controllers
 {
@@ -74,7 +75,8 @@ namespace ConsoleFIA.Controllers
         public RegistryController()
         {
             Registry = new RegistryOfEnterprises();
-            Registry.Enterprises = MocksFabric.GetMockEnterprisesReports();
+            //Registry.Enterprises = MocksFabric.GetMockEnterprisesReports();
+            Registry.Enterprises = DbManager.GetEnterprises();
             SelectTotalFinancialResults = new SelectFromList<Enterprise, FinancialResult>(OrderedFinancialStatements, GetNestedFinResCount);
             FinancialStatementsMenu = new Menu(new List<MenuItem>()
             {
