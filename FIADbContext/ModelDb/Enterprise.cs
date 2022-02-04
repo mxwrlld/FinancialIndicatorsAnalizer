@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace FIADbContext.ModelDb
 {
-    public partial class Enterprise
+    public sealed class Enterprise
     {
         public string Tin { get; set; }
         public string Name { get; set; }
