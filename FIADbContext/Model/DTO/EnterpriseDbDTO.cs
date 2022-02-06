@@ -9,7 +9,7 @@ namespace FIADbContext.Model.DTO
         public string TIN { get; set; }
         public string Name { get; set; }
         public string LegalAddress { get; set; }
-
+        public UserDbDTO Manager { get; set; }
         public ICollection<FinancialResultDbDTO> FinancialResults { get; set; }
     }
 }

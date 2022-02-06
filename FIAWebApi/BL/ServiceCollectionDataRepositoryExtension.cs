@@ -11,12 +11,14 @@ namespace FIAWebApi.BL
     {
         public static void AddFIARepositories(this IServiceCollection services)
         {
-            services.AddTransient<EnterpriseRepository>();;
+            services.AddTransient<EnterpriseRepository>();
+            services.AddTransient<FinancialResultRepository>();
         }
 
         public static void AddFIAServices(this IServiceCollection services)
         {
             services.AddTransient<EnterprisesService>();
+            services.AddScoped<UsersService>();
         }
 
     }

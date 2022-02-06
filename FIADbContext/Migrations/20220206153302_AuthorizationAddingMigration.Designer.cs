@@ -4,14 +4,16 @@ using FIADbContext.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FIADbContext.Migrations
 {
     [DbContext(typeof(FIAContext))]
-    partial class FIAContextModelSnapshot : ModelSnapshot
+    [Migration("20220206153302_AuthorizationAddingMigration")]
+    partial class AuthorizationAddingMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

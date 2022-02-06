@@ -6,21 +6,27 @@ using FIADbContext.Repositories;
 using FIAWebApi.BL.Model;
 using FIAWebApi.BL.Exceprions;
 using System.Text.RegularExpressions;
+using FIADbContext.Model.DTO;
+using Microsoft.AspNetCore.Identity;
 
 namespace FIAWebApi.BL
 {
     public class EnterprisesService
     {
-        EnterpriseRepository repository;
+        EnterpriseRepository enterpriseRepository;
+        FinancialResultRepository financialResultRepository;
+        UserManager<UserDbDTO> userManager;
 
-        public EnterprisesService(EnterpriseRepository enterpriseRepository)
+        public EnterprisesService(EnterpriseRepository enterpriseRepository, FinancialResultRepository financialResultRepository, UserManager<UserDbDTO> userManager)
         {
-            this.repository = enterpriseRepository;
+            this.enterpriseRepository = enterpriseRepository;
+            this.financialResultRepository = financialResultRepository;
+            this.userManager = userManager;
         }
 
         public async Task<IEnumerable<EnterpriseApiDTO>> GetAllAsync(string search, int? year, int? quarter, string sortBy, bool sortDesc)
         {
-            var enterprises = await repository.GetAllAsync(search, year, quarter, sortBy, sortDesc);
+            var enterprises = await enterpriseRepository.GetAllAsync(search, year, quarter, sortBy, sortDesc);
             return enterprises.Select(entr => new EnterpriseApiDTO(entr));
         }
 
@@ -32,7 +38,7 @@ namespace FIAWebApi.BL
                 return (null, new ArgumentException(msg, "tin"));
             }
 
-            var enterprise = await repository.GetAsync(tin);
+            var enterprise = await enterpriseRepository.GetAsync(tin);
             if (enterprise == null)
             {
                 return (null, new KeyNotFoundException($"Предприятие с инн - {tin} не найдено"));
@@ -50,15 +56,15 @@ namespace FIAWebApi.BL
             }
 
             var enterpriseDb = enterprise.Create();
-            repository.Create(enterpriseDb);
+            enterpriseRepository.Create(enterpriseDb);
 
             try
             {
-                await repository.SaveAsync();
+                await enterpriseRepository.SaveAsync();
             }
             catch (Exception ex)
             {
-                if (await repository.Exists(enterprise.TIN))
+                if (await enterpriseRepository.Exists(enterprise.TIN))
                 {
                     return new AlreadyExistsException($"Предприятие с инн - {enterprise.TIN} уже существует!");
                 }
@@ -76,7 +82,7 @@ namespace FIAWebApi.BL
                 return new ArgumentException(msg, "tin");
             }
 
-            var enterpriseDb = await repository.GetAsync(tin);
+            var enterpriseDb = await enterpriseRepository.GetAsync(tin);
 
             if (enterpriseDb == null)
             {
@@ -84,11 +90,11 @@ namespace FIAWebApi.BL
             }
 
             enterprise.Update(enterpriseDb);
-            repository.Update(enterpriseDb);
+            enterpriseRepository.Update(enterpriseDb);
 
             try
             {
-                await repository.SaveAsync();
+                await enterpriseRepository.SaveAsync();
             }
             catch (Exception ex)
             {
@@ -105,7 +111,7 @@ namespace FIAWebApi.BL
                 return (null, new ArgumentException(msg, "tin"));
             }
 
-            var enterpriseDb = await repository.DeleteAsync(tin);
+            var enterpriseDb = await enterpriseRepository.DeleteAsync(tin);
 
             if (enterpriseDb == null)
             {
@@ -114,7 +120,7 @@ namespace FIAWebApi.BL
 
             try
             {
-                await repository.SaveAsync();
+                await enterpriseRepository.SaveAsync();
             }
             catch (Exception ex)
             {
@@ -122,6 +128,45 @@ namespace FIAWebApi.BL
             }
 
             return (new EnterpriseApiDTO(enterpriseDb), null);
+        }
+
+        public async Task<Exception> AddFinancialResultAsync(string userName, string tin, FinancialResultApiDTO finRes)
+        {
+            var user = await userManager.FindByNameAsync(userName);
+            if(user == null)
+            {
+                return new Exception();
+            }
+            if(user.EntepriseTIN != tin)
+            {
+                return new ArgumentException($"У вас нет доступа к заданному предприятию - {tin}");
+            }
+
+            var enterpriseDb = await enterpriseRepository.GetAsync(tin);
+            if (enterpriseDb == null)
+            {
+                return new KeyNotFoundException($"Предприятие с инн - {tin} не найдено");
+            }
+
+            if(await financialResultRepository.Exists(finRes.Year, finRes.Quarter, tin))
+            {
+                return new AlreadyExistsException($"Записи финансовых показателей {finRes.Year} года {finRes.Quarter} квартала для предприятия с инн - {tin} уже существуют");
+            }
+
+            var finResDb = finRes.Create();
+            finResDb.Enterprise = enterpriseDb;
+            finResDb.EnterpriseTIN = enterpriseDb.TIN;
+            financialResultRepository.Create(finResDb);
+            
+            try
+            {
+                await financialResultRepository.SaveAsync();
+            }
+            catch (Exception ex)
+            {
+                return new SaveChangesException(ex);
+            }
+            return null;
         }
 
         private (bool, string) ValidateTIN(string tin)

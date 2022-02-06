@@ -21,6 +21,11 @@ namespace FIADbContext.Model.Configure
             builder.Property(enterprise => enterprise.Name)
                 .HasColumnType("nvarchar(50)")
                 .IsRequired();
+            
+            builder
+                .HasOne(enterprise => enterprise.Manager)
+                .WithOne(user => user.Enterprise)
+                .HasForeignKey<UserDbDTO>(user => user.EntepriseTIN);
         }
     }
 }
